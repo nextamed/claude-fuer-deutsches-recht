@@ -66,13 +66,13 @@
   "source": {
     "repository": "nextamed/ai-repo-standards",
     "version": "1.0.0",
-    "revision": "1090fcf580d890f329a094123bece557dc3311b1"
+    "revision": "8dd1d36d572659bc6cb61288f071965aa85def24"
   },
   "managed_files": {
     "ai/standard/core.md": "5693acd30e9178928f3b88055dbe75b621da7decd1f7e45c7bf959a40db3649a",
     "ai/standard/profile.md": "f93b606695e666da59ed318ab217168c4b3cbb20fac78ec0acdad2f6e438714f",
     "ai/standard/VERSION": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
-    "ai/standard/validate_repo.py": "ec43066f2fc97d87c755e98937c8e69ae196e40ce161ed36a09d96bfb1ee6463",
+    "ai/standard/validate_repo.py": "800b1cb521aa582492b33fc99e3e48d58940902ce87508ff4955bce0a3ec4527",
     "ai/standard/LICENSE": "bed47dbc0a2f5d26875c1f85eaa536e82b698cef49c7b3a3963c340710d03158",
     ".github/workflows/repo-standard.yml": "d56f6f75f75af6e5f5283859c81ee3a505cd795f66b5e098b1253ec93771fe6b"
   }

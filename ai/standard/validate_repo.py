@@ -177,6 +177,17 @@ def has_agents_import(content: str) -> bool:
     return False
 
 
+def in_snapshot_metadata(path: str, manifest: dict[str, Any]) -> bool:
+    for pattern in manifest["snapshot"]["metadata_paths"]:
+        if pattern.endswith("/**"):
+            prefix = pattern[:-3]
+            if path == prefix or path.startswith(prefix + "/"):
+                return True
+        elif path == pattern:
+            return True
+    return False
+
+
 def schema_errors(manifest: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     if manifest.get("schema_version") != 1:
@@ -187,6 +198,24 @@ def schema_errors(manifest: dict[str, Any]) -> list[str]:
         errors.append("Unknown repository profile")
     if manifest.get("adapter_mode", "symlink") not in {"symlink", "wrapper"}:
         errors.append("adapter_mode must be symlink or wrapper")
+    if manifest.get("profile") == "snapshot":
+        snapshot = manifest.get("snapshot")
+        paths = snapshot.get("metadata_paths") if isinstance(snapshot, dict) else None
+        if not isinstance(paths, list) or not paths:
+            errors.append("snapshot profile requires snapshot.metadata_paths")
+        else:
+            for pattern in paths:
+                try:
+                    if not isinstance(pattern, str):
+                        raise StandardError("Snapshot metadata paths must be strings")
+                    prefix = pattern[:-3] if pattern.endswith("/**") else pattern
+                    relative_path(prefix)
+                    if any(char in prefix for char in "*?[]"):
+                        raise StandardError("Snapshot metadata paths permit only literals or a precise trailing /** subtree")
+                except StandardError as exc:
+                    errors.append(str(exc))
+        if manifest.get("checks"):
+            errors.append("snapshot profile permits no executable command checks; validate only vendored metadata")
     modules = manifest.get("modules")
     if not isinstance(modules, list) or any(not isinstance(x, str) or not x for x in modules):
         errors.append("modules must be an array of names")
@@ -289,6 +318,12 @@ def validate(tree: Tree) -> list[str]:
     errors = schema_errors(manifest)
     if errors:
         return errors
+    if manifest["profile"] == "snapshot":
+        required_metadata = {MANIFEST, "AGENTS.md", "CLAUDE.md", *manifest["managed_files"],
+                             *manifest["skills"], *manifest["knowledge"].values()}
+        for path in required_metadata:
+            if not in_snapshot_metadata(path, manifest):
+                errors.append(f"Required governance path falls outside snapshot metadata scope: {path}")
     for path, expected in manifest["managed_files"].items():
         try:
             data = tree.read(path)
@@ -335,6 +370,8 @@ def validate(tree: Tree) -> list[str]:
             names.add(name)
             for parent in (".agents/skills", ".claude/skills"):
                 alias = f"{parent}/{name}"
+                if manifest["profile"] == "snapshot" and not in_snapshot_metadata(alias + "/SKILL.md", manifest):
+                    errors.append(f"Skill adapter falls outside snapshot metadata scope: {alias}")
                 if manifest.get("adapter_mode", "symlink") == "wrapper":
                     target = os.path.relpath(path, alias)
                     actual = tree.text(alias + "/SKILL.md")
@@ -449,15 +486,21 @@ def check_repo(root: Path, base: str | None = None, run_checks: bool = False) ->
         errors.extend(changed_content_errors(tree, paths, revision))
     except StandardError as exc:
         return [str(exc)], messages
-    selected = [check for check in manifest["checks"] if selects(check, paths)]
+    scoped_paths = paths
+    if manifest["profile"] == "snapshot":
+        scoped_paths = [path for path in paths if in_snapshot_metadata(path, manifest)]
+        excluded_count = len(paths) - len(scoped_paths)
+        if excluded_count:
+            messages.append(f"NOT VALIDATED: {excluded_count} application snapshot path(s) outside metadata scope; only added-line credential screening applied")
+    selected = [check for check in manifest["checks"] if selects(check, scoped_paths)]
     check_scripts = {arg for check in manifest["checks"] for arg in check["argv"][1:]
                      if not arg.startswith("-") and PurePosixPath(arg).suffix in {".py", ".sh", ".js", ".mjs", ".ts"}}
-    delegated = [gate for gate in manifest.get("existing_ci", []) if selects(gate, paths)]
+    delegated = [gate for gate in manifest.get("existing_ci", []) if selects(gate, scoped_paths)]
     def covered_by_existing_ci(path):
         if path in check_scripts or path.startswith("ai/standard/"):
             return False
         return any(matches(path, pattern) for gate in delegated for pattern in gate["paths"])
-    uncovered = [p for p in paths if not is_document(p) and not builtin_coverage(p, manifest)
+    uncovered = [p for p in scoped_paths if not is_document(p) and not builtin_coverage(p, manifest)
                  and not any(matches(p, pattern) for c in manifest["checks"] for pattern in c["paths"])
                  and not covered_by_existing_ci(p)]
     errors.extend(f"Changed source/config has no declared offline check: {p}" for p in uncovered)
