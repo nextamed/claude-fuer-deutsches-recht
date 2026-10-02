@@ -4,7 +4,11 @@
 protokolle/
 /outputs/
 outputs/
-/.claude/
+/.claude/*
+!/.claude/skills/
+/.claude/skills/*
+!/.claude/skills/claude-fuer-deutsches-recht-develop
+!/.claude/skills/claude-fuer-deutsches-recht-operate
 __pycache__/
 *.pyc
 /dist/
