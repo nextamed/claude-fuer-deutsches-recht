@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "repository": "nextamed/claude-fuer-deutsches-recht",
+  "profile": "skills",
+  "modules": [
+    "upstream-fork",
+    "legal-skills"
+  ],
+  "knowledge": {
+    "current": "README.md",
+    "decisions": "AGENTS.md",
+    "learnings": "ai/knowledge/README.md",
+    "runbooks": "REPOSITORY_GUIDE.md"
+  },
+  "checks": [
+    {
+      "name": "marketplace-import",
+      "argv": [
+        "node",
+        "scripts/validate-marketplace-import.mjs"
+      ],
+      "paths": [
+        ".claude-plugin/**",
+        "**/plugin.json",
+        "**/SKILL.md",
+        "scripts/validate-marketplace-import.mjs"
+      ],
+      "kind": "offline"
+    },
+    {
+      "name": "plugin-structure",
+      "argv": [
+        "node",
+        "scripts/validate-plugin-structure.mjs"
+      ],
+      "paths": [
+        "**/SKILL.md",
+        "**/plugin.json",
+        "scripts/validate-plugin-structure.mjs"
+      ],
+      "kind": "offline"
+    },
+    {
+      "name": "client-adapter-ignore-boundary",
+      "argv": [
+        "python3",
+        "scripts/check_repo_adapters.py"
+      ],
+      "paths": [
+        ".gitignore",
+        ".agents/**",
+        ".claude/**",
+        "scripts/check_repo_adapters.py"
+      ],
+      "kind": "offline"
+    }
+  ],
+  "skills": [
+    "ai/skills/claude-fuer-deutsches-recht-develop/SKILL.md",
+    "ai/skills/claude-fuer-deutsches-recht-operate/SKILL.md"
+  ],
+  "deployment": {
+    "mode": "existing-pipeline",
+    "description": "main-Push mit Markdown-Aenderungen startet bestehendes GitHub Pages Deployment (einschliesslich Markdown-Downloads); Release-Tags publizieren Skill-ZIPs. Repo-Standard setzt keine Tags, merge/deploy erfolgt nur im beauftragten Umfang."
+  },
+  "source": {
+    "repository": "nextamed/ai-repo-standards",
+    "version": "1.0.0",
+    "revision": "8dd1d36d572659bc6cb61288f071965aa85def24"
+  },
+  "managed_files": {
+    "ai/standard/core.md": "5693acd30e9178928f3b88055dbe75b621da7decd1f7e45c7bf959a40db3649a",
+    "ai/standard/profile.md": "f93b606695e666da59ed318ab217168c4b3cbb20fac78ec0acdad2f6e438714f",
+    "ai/standard/VERSION": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
+    "ai/standard/validate_repo.py": "800b1cb521aa582492b33fc99e3e48d58940902ce87508ff4955bce0a3ec4527",
+    "ai/standard/LICENSE": "bed47dbc0a2f5d26875c1f85eaa536e82b698cef49c7b3a3963c340710d03158",
+    ".github/workflows/repo-standard.yml": "d56f6f75f75af6e5f5283859c81ee3a505cd795f66b5e098b1253ec93771fe6b"
+  }
+}

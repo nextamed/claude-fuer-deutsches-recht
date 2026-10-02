@@ -9,7 +9,7 @@ Wartungs-Sweeps durchfuehren. Sie ist verbindlich.
 Die folgenden Bestandteile sind absichtlich da, auch wenn sie auf den
 ersten Blick wie Hilfsdateien oder Duplikate aussehen koennen. Sie
 duerfen nicht entfernt, verschoben oder geleert werden, ohne dass
-Klotzkette das ausdruecklich anweist.
+der Betreiber dieses Forks (nextamed) das ausdruecklich anweist.
 
 ### Hilfsmaterial unter `testakten/`
 
@@ -68,7 +68,8 @@ bleiben — auch wenn sie nur einmal oder unregelmaessig laufen:
    `[a-z0-9-]`, maximal 64 Zeichen. Slug == Ordnername.
 5. Commits niemals mit Author `Claude`, `Codex`, `AI` oder
    vergleichbaren Maschinen-Identitaeten taggen. Verwende
-   `Klotzkette / 39582916+Klotzkette@users.noreply.github.com`.
+   die bestaetigte Git-Identitaet des Fork-Betreibers (hier `nextamed /
+   48177206+nextamed@users.noreply.github.com`). Den Upstream-Autor nicht imitieren.
 6. Vor jedem Push: diese Validatoren laufen lassen:
    - `node scripts/validate-marketplace-import.mjs`
    - `python3 scripts/validate-yaml-frontmatter.py`
@@ -93,7 +94,7 @@ bleiben — auch wenn sie nur einmal oder unregelmaessig laufen:
   eingehalten sind.
 
 Sollten Zweifel bestehen, lieber einen separaten Branch mit
-`chore/codex-cleanup-YYYY-MM-DD` anlegen und einen PR fuer Klotzkette
+`chore/codex-cleanup-YYYY-MM-DD` anlegen und einen PR gegen `nextamed/claude-fuer-deutsches-recht`
 oeffnen, statt direkt auf main zu pushen.
 
 ## Wer hat zuletzt veredelt
